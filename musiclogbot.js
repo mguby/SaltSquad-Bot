@@ -3,66 +3,72 @@ var triggers = require('./triggers');
 var Discord = require("discord.js");
 var bot = new Discord.Client();
 
-var musicBotUsername = 'Stallion Bot';
-var musicThread = '128947606393978880';
-var musicChannel = null;
-var logChannel = null;
-var voiceChannel = null;
+var BOT_CHANNEL_JOIN_TIME = 30000;
+var MUSIC_BOT_USERNAME = 'Stallion Bot';
+var MUSIC_THREAD = '128947606393978880';
+var MUSIC_CHANNEL = null;
+var LOG_CHANNEL = null;
+var VOICE_CHANNEL = null;
 
-var checkForResponseMessage = (msg, responseTrigger) => {
-  if (msg.content.toLowerCase().startsWith(responseTrigger)) {
+var checkForResponseMessage = (aMsg, aResponseTrigger) => {
+  if (aMsg.content.toLowerCase().startsWith(aResponseTrigger)) {
     //noinspection JSUnresolvedFunction
-    msg.channel.sendMessage(triggers[responseTrigger]);
+    aMsg.channel.sendMessage(triggers[aResponseTrigger]);
   }
 };
 
-var verifyMusicBotMessage = msgContent => {
-  return msgContent.includes("Enqueued") || msgContent.includes("added by") || msgContent.includes('is now playing ');
+var getCommandArgs  = aMsgContent => {
+  var myMsgArgs = aMsgContent.split(' ');
+  myMsgArgs.shift();
+  return myMsgArgs;
 };
 
-bot.on("message", msg => {
-  for (var property in triggers) {
+var verifyMusicBotMessage = aMsgContent => {
+  return aMsgContent.includes("Enqueued") || aMsgContent.includes("added by") || aMsgContent.includes('is now playing ');
+};
+
+bot.on("message", aMsg => {
+  for (var myProperty in triggers) {
     //noinspection JSUnresolvedFunction
-    if(triggers.hasOwnProperty(property)) {
-        checkForResponseMessage(msg, property);
+    if(triggers.hasOwnProperty(myProperty)) {
+        checkForResponseMessage(aMsg, myProperty);
     }
   }
 
   //noinspection JSUnresolvedFunction
-  if(msg.content.startsWith("!mt") || msg.content.startsWith("!music-thread")) {
-    var msgArgs = msg.content.split(' ');
-    msgArgs.shift();
-    if(msgArgs[0] !== undefined) {
-      msg.channel.sendMessage('*Fetching last ' + msgArgs[0] + ' songs from the music thread*');
-      musicChannel.fetchMessages({limit: msgArgs[0]})
-        .then(messages => {
-          voiceChannel.join()
-            .then( () => {
-              messages.array().forEach(function(val) {
-                var url = val.content;
-                if(url.startsWith('http')) {
-                  msg.channel.sendMessage('!play ' + url);
-                }
-              });
-              setTimeout(function() {
-                voiceChannel.leave();
-              }, 30000);
-            })
-        })
-        .catch(console.error);
-    }
+  if(aMsg.content.startsWith("!mt") || aMsg.content.startsWith("!music-thread")) {
+    var myMsgArgs = getCommandArgs(aMsg.content);
+    var myLimit = myMsgArgs[0] !== undefined ? myMsgArgs : 1;
+
+    aMsg.channel.sendMessage('*Fetching last ' + myLimit + ' songs from the music thread*');
+
+    var myQuery = { limit: myLimit }; // TODO add querying to command
+    MUSIC_CHANNEL.fetchMessages(myQuery)
+    .then(aMessages => {
+      VOICE_CHANNEL.join()
+      .then( () => {
+        aMessages.array().forEach(function(val) {
+          var myUrl = val.content;
+          if(myUrl.startsWith('http')) {
+            aMsg.channel.sendMessage('!play ' + myUrl);
+          }
+        });
+        setTimeout(() => VOICE_CHANNEL.leave(), BOT_CHANNEL_JOIN_TIME);
+      })
+    })
+    .catch(console.error);
   }
 
-  if(msg.author.username === musicBotUsername && verifyMusicBotMessage(msg.content)) {
-    logChannel.sendMessage(msg.content);
+  if(aMsg.author.username === MUSIC_BOT_USERNAME && verifyMusicBotMessage(aMsg.content)) {
+    LOG_CHANNEL.sendMessage(aMsg.content);
   }
 });
 
 bot.on('ready', () => {
   console.log('I am ready!');
-  logChannel = bot.channels.find(val => val.name === 'djbot-log');
-  musicChannel = bot.channels.find(val => val.id === musicThread);
-  voiceChannel = bot.channels.find(val => val.name === 'shogun-audio-afk');
+  LOG_CHANNEL = bot.channels.find(val => val.name === 'djbot-log');
+  MUSIC_CHANNEL = bot.channels.find(val => val.id === MUSIC_THREAD);
+  VOICE_CHANNEL = bot.channels.find(val => val.name === 'shogun-audio-afk');
 });
 
 bot.login(secrets.token);
