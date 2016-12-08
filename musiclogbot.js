@@ -68,7 +68,8 @@ bot.on('ready', () => {
   console.log('I am ready!');
   LOG_CHANNEL = bot.channels.find(val => val.name === 'djbot-log');
   MUSIC_CHANNEL = bot.channels.find(val => val.id === MUSIC_THREAD);
-  VOICE_CHANNEL = bot.channels.find(val => val.name === 'shogun-audio-afk');
+  var user = bot.users.find('username', MUSIC_BOT_USERNAME);
+  VOICE_CHANNEL = bot.channels.find(val => val.type === 'voice' && val.members.exists('user', user));
 });
 
 bot.login(secrets.token);
