@@ -49,8 +49,11 @@ bot.on("message", aMsg => {
       .then( () => {
         aMessages.array().forEach(function(val) {
           var myUrl = val.content;
-          if(myUrl.startsWith('http')) {
-            aMsg.channel.sendMessage('!play ' + myUrl);
+          if(myUrl.contains('http')) {
+            // var myUrlStart = myUrl.indexOf('http');
+            // var trimmedBeginningUrl = myUrl.substr(myUrlStart);
+            // var trimmedUrl = trimmedBeginningUrl.substr(0, trimmedBeginningUrl.indexOf(' '))
+            aMsg.channel.sendMessage('!play ' + myUrl.substr(myUrl.indexOf('http'))); // get end of link
           }
         });
         setTimeout(() => VOICE_CHANNEL.leave(), BOT_CHANNEL_JOIN_TIME);
