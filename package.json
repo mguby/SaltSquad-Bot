@@ -1,0 +1,9 @@
+{
+  "name": "salt_squad_music_bot",
+  "version": "1.0.0",
+  "homepage": "https://github.com/mguby/SaltSquad-Bot",
+  "dependencies": {
+    "discord.js": "^10.0.1",
+    "node-opus": "^0.2.4"
+  }
+}
