@@ -49,7 +49,7 @@ bot.on("message", aMsg => {
       .then( () => {
         aMessages.array().forEach(function(val) {
           var myUrl = val.content;
-          if(myUrl.contains('http')) {
+          if(myUrl.includes('http')) {
             // var myUrlStart = myUrl.indexOf('http');
             // var trimmedBeginningUrl = myUrl.substr(myUrlStart);
             // var trimmedUrl = trimmedBeginningUrl.substr(0, trimmedBeginningUrl.indexOf(' '))
