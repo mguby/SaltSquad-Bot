@@ -6,6 +6,7 @@ var bot = new Discord.Client();
 var BOT_CHANNEL_JOIN_TIME = 30000;
 var MUSIC_BOT_USERNAME = 'Stallion Bot';
 var MUSIC_THREAD = '128947606393978880';
+var DJ_CHANNEL = null;
 var MUSIC_CHANNEL = null;
 var LOG_CHANNEL = null;
 var VOICE_CHANNEL = null;
@@ -33,6 +34,18 @@ bot.on("message", aMsg => {
     if(triggers.hasOwnProperty(myProperty)) {
         checkForResponseMessage(aMsg, myProperty);
     }
+  }
+
+  if(aMsg.content.startsWith("!song")) {
+    aMsg.channel.sendMessage("Check your messages!");
+    DJ_CHANNEL.fetchMessages()
+      .then(aMessages => {
+        aMessages.array().forEach(function(val) {
+          if(val.content.includes("your song") && val.content.includes("is now playing in")) {
+            aMsg.author.sendMessage(val.content);
+          }
+        })
+      })
   }
 
   //noinspection JSUnresolvedFunction
@@ -71,6 +84,7 @@ bot.on('ready', () => {
   console.log('I am ready!');
   LOG_CHANNEL = bot.channels.find(val => val.name === 'djbot-log');
   MUSIC_CHANNEL = bot.channels.find(val => val.id === MUSIC_THREAD);
+  DJ_CHANNEL = bot.channels.find(val => val.name === 'djbot');
   var user = bot.users.find('username', MUSIC_BOT_USERNAME);
   VOICE_CHANNEL = bot.channels.find(val => val.type === 'voice' && val.members.exists('user', user));
 });
