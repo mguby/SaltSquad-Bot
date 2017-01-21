@@ -25,7 +25,7 @@ var getCommandArgs  = aMsgContent => {
 };
 
 var verifyMusicBotMessage = aMsgContent => {
-  return aMsgContent.includes("Enqueued") || aMsgContent.includes("added by") || aMsgContent.includes('is now playing ');
+  return aMsgContent.includes("your song") && aMsgContent.includes('is now playing in');
 };
 
 bot.on("message", aMsg => {
