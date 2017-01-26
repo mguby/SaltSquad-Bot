@@ -25,7 +25,8 @@ var getCommandArgs  = aMsgContent => {
 };
 
 var verifyMusicBotMessage = aMsgContent => {
-  return aMsgContent.includes("your song") && aMsgContent.includes('is now playing in');
+  return (aMsgContent.includes("your song") && aMsgContent.includes('is now playing in'))
+    || aMsgContent.includes("Now Playing:");
 };
 
 bot.on("message", aMsg => {
@@ -41,8 +42,8 @@ bot.on("message", aMsg => {
     DJ_CHANNEL.fetchMessages()
       .then(aMessages => {
         aMessages.array().forEach(function(val) {
-          if(val.content.includes("your song") && val.content.includes("is now playing in")) {
-            aMsg.author.sendMessage(val.content);
+          if(verifyMusicBotMessage(val.content)) {
+            return aMsg.author.sendMessage(val.content);
           }
         })
       })
