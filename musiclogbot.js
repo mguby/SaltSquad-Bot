@@ -76,6 +76,12 @@ bot.on("message", aMsg => {
     .catch(console.error);
   }
 
+  if(aMsg.content.startsWith("Give me your bandwidth")) {
+  	aMsg.channel.sendMessage('wooboost activating https://imgur.com/QkNNJhY', {
+  		 file:"./Aaron-Needs-Aid.jpg"
+  	}).catch(err => console.log(err));
+  }
+
   if(aMsg.author.username === MUSIC_BOT_USERNAME && verifyMusicBotMessage(aMsg.content)) {
     LOG_CHANNEL.sendMessage(aMsg.content);
   }
