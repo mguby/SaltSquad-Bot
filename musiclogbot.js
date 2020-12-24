@@ -53,7 +53,7 @@ bot.on("message", aMsg => {
       const filter = (reaction, user) => {
         return reaction.emoji.name === 'deletenephew';
       };
-      myVote.awaitReactions(filter, {max: 1, time: 30000, errors: ['time']})
+      myVote.awaitReactions(filter, {max: 6, time: 30000, errors: ['time']})
         .then(collected => {
           var myMember = aMsg.mentions.members.first();
           const myCeelo = bot.emojis.cache.find(emoji => emoji.name === 'ceelo');
