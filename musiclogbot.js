@@ -44,7 +44,7 @@ bot.on("message", aMsg => {
     }
   }
 
-  if(aMsg.content.startsWith("test")) {
+  if(aMsg.content.startsWith("stop posting")) {
     var myUser = aMsg.mentions.users.first();
     console.log(myUser);
     const myDeleteEmoji = bot.emojis.cache.find(emoji => emoji.name === 'deletenephew');
