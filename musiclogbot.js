@@ -46,27 +46,28 @@ bot.on("message", aMsg => {
 
   if(aMsg.content.startsWith("stop posting")) {
     var myUser = aMsg.mentions.users.first();
-    console.log(myUser);
     const myDeleteEmoji = bot.emojis.cache.find(emoji => emoji.name === 'deletenephew');
-    aMsg.channel.send("Does <@" + myUser.id + "> need to stop posting? Need 6 <:deletenephew:" + myDeleteEmoji.id + "> votes in 30 seconds").then((myVote) => {
-      myVote.react(myDeleteEmoji);
-      const filter = (reaction, user) => {
-        return reaction.emoji.name === 'deletenephew';
-      };
-      myVote.awaitReactions(filter, {max: 6, time: 30000, errors: ['time']})
-        .then(collected => {
-          var myMember = aMsg.mentions.members.first();
-          const myCeelo = bot.emojis.cache.find(emoji => emoji.name === 'ceelo');
-          console.log(myMember);
-          myMember.roles.add(STOP_ROLE);
-          aMsg.channel.send("<:ceelo:" + myCeelo + "> Bro stop posting for 1 hour");
-          setTimeout(removeStopRole, 3600000, myMember, aMsg);
-        })
-        .catch(collected => {
-          const myYikesEmoji = bot.emojis.cache.find(emoji => emoji.name === 'yikes');
-          aMsg.channel.send("Time's up, not enough votes <:yikes:" + myYikesEmoji + ">");
-        });
-    });
+    if(typeof myUser !== 'undefined') {
+      aMsg.channel.send("Does <@" + myUser.id + "> need to stop posting? Need 6 <:deletenephew:" + myDeleteEmoji.id + "> votes in 30 seconds").then((myVote) => {
+        myVote.react(myDeleteEmoji);
+        const filter = (reaction, user) => {
+          return reaction.emoji.name === 'deletenephew';
+        };
+        myVote.awaitReactions(filter, {max: 2, time: 10000, errors: ['time']})
+          .then(collected => {
+            var myMember = aMsg.mentions.members.first();
+            const myCeelo = bot.emojis.cache.find(emoji => emoji.name === 'ceelo');
+            console.log(myMember);
+            myMember.roles.add(STOP_ROLE);
+            aMsg.channel.send("<:ceelo:" + myCeelo + "> <@" + myUser.id + "> Bro stop posting for 10 minutes");
+            setTimeout(removeStopRole, 600000, myMember, aMsg);
+          })
+          .catch(collected => {
+            const myYikesEmoji = bot.emojis.cache.find(emoji => emoji.name === 'yikes');
+            aMsg.channel.send("Time's up, not enough votes for <@" + myUser.id + "> <:yikes:" + myYikesEmoji + ">");
+          });
+      });
+    }
   }
 });
 
