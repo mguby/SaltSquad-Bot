@@ -10,11 +10,12 @@ var DJ_CHANNEL = null;
 var MUSIC_CHANNEL = null;
 var LOG_CHANNEL = null;
 var VOICE_CHANNEL = null;
+var STOP_ROLE = null;
 
 var checkForResponseMessage = (aMsg, aResponseTrigger) => {
   if (aMsg.content.toLowerCase().startsWith(aResponseTrigger)) {
     //noinspection JSUnresolvedFunction
-    aMsg.channel.sendMessage(triggers[aResponseTrigger]);
+    aMsg.channel.send(triggers[aResponseTrigger]);
   }
 };
 
@@ -29,6 +30,12 @@ var verifyMusicBotMessage = aMsgContent => {
     || aMsgContent.includes("Now Playing:");
 };
 
+function removeStopRole(member, msg) {
+  member.roles.remove(STOP_ROLE);
+  msg.channel.send("<@" + member.user.id + "> can post again");
+}
+
+
 bot.on("message", aMsg => {
   for (var myProperty in triggers) {
     //noinspection JSUnresolvedFunction
@@ -37,63 +44,35 @@ bot.on("message", aMsg => {
     }
   }
 
-  if(aMsg.content.startsWith("!song")) {
-    aMsg.channel.sendMessage("Check your messages!");
-    DJ_CHANNEL.fetchMessages()
-      .then(aMessages => {
-        aMessages.array().forEach(function(val) {
-          if(verifyMusicBotMessage(val.content)) {
-            return aMsg.author.sendMessage(val.content);
-          }
+  if(aMsg.content.startsWith("test")) {
+    var myUser = aMsg.mentions.users.first();
+    console.log(myUser);
+    const myDeleteEmoji = bot.emojis.cache.find(emoji => emoji.name === 'deletenephew');
+    aMsg.channel.send("Does <@" + myUser.id + "> need to stop posting? Need 6 <:deletenephew:" + myDeleteEmoji.id + "> votes in 30 seconds").then((myVote) => {
+      myVote.react(myDeleteEmoji);
+      const filter = (reaction, user) => {
+        return reaction.emoji.name === 'deletenephew';
+      };
+      myVote.awaitReactions(filter, {max: 1, time: 30000, errors: ['time']})
+        .then(collected => {
+          var myMember = aMsg.mentions.members.first();
+          const myCeelo = bot.emojis.cache.find(emoji => emoji.name === 'ceelo');
+          console.log(myMember);
+          myMember.roles.add(STOP_ROLE);
+          aMsg.channel.send("<:ceelo:" + myCeelo + "> Bro stop posting for 1 hour");
+          setTimeout(removeStopRole, 3600000, myMember, aMsg);
         })
-      })
-  }
-
-  //noinspection JSUnresolvedFunction
-  if(aMsg.content.startsWith("!mt") || aMsg.content.startsWith("!music-thread")) {
-    var myMsgArgs = getCommandArgs(aMsg.content);
-    var myLimit = myMsgArgs[0] !== undefined ? myMsgArgs : 1;
-
-    aMsg.channel.sendMessage('*Fetching last ' + myLimit + ' songs from the music thread*');
-
-    var myQuery = { limit: myLimit }; // TODO add querying to command
-    MUSIC_CHANNEL.fetchMessages(myQuery)
-    .then(aMessages => {
-      VOICE_CHANNEL.join()
-      .then( () => {
-        aMessages.array().forEach(function(val) {
-          var myUrl = val.content;
-          if(myUrl.includes('http')) {
-            // var myUrlStart = myUrl.indexOf('http');
-            // var trimmedBeginningUrl = myUrl.substr(myUrlStart);
-            // var trimmedUrl = trimmedBeginningUrl.substr(0, trimmedBeginningUrl.indexOf(' '))
-            aMsg.channel.sendMessage('!play ' + myUrl.substr(myUrl.indexOf('http'))); // get end of link
-          }
+        .catch(collected => {
+          const myYikesEmoji = bot.emojis.cache.find(emoji => emoji.name === 'yikes');
+          aMsg.channel.send("Time's up, not enough votes <:yikes:" + myYikesEmoji + ">");
         });
-        setTimeout(() => VOICE_CHANNEL.leave(), BOT_CHANNEL_JOIN_TIME);
-      })
-    })
-    .catch(console.error);
-  }
-
-  if(aMsg.content.startsWith("Give me your bandwidth")) {
-  	aMsg.channel.sendMessage('wooboost activating https://imgur.com/QkNNJhY', {
-  		 file:"./Aaron-Needs-Aid.jpg"
-  	}).catch(err => console.log(err));
-  }
-
-  if(aMsg.author.username === MUSIC_BOT_USERNAME && verifyMusicBotMessage(aMsg.content)) {
-    LOG_CHANNEL.sendMessage(aMsg.content);
+    });
   }
 });
 
 bot.on('ready', () => {
+  STOP_ROLE = bot.guilds.cache.find(myVar => myVar.name === 'SaltSquad').roles.cache.find(role => role.id === '384153116615901185');
   console.log('I am ready!');
-  LOG_CHANNEL = bot.channels.find(val => val.name === 'djbot-log');
-  MUSIC_CHANNEL = bot.channels.find(val => val.id === MUSIC_THREAD);
-  DJ_CHANNEL = bot.channels.find(val => val.name === 'djbot');
-  var user = bot.users.find('username', MUSIC_BOT_USERNAME);
-  VOICE_CHANNEL = bot.channels.find(val => val.type === 'voice' && val.members.exists('user', user));
 });
 
 bot.login(secrets.token);
