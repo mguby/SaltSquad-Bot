@@ -10,7 +10,8 @@ var DJ_CHANNEL = null;
 var MUSIC_CHANNEL = null;
 var LOG_CHANNEL = null;
 var VOICE_CHANNEL = null;
-var STOP_ROLE = null;
+var STOP_POSTING_ROLE = null;
+var STOP_TALKING_ROLE = null;
 
 var checkForResponseMessage = (aMsg, aResponseTrigger) => {
   if (aMsg.content.toLowerCase().startsWith(aResponseTrigger)) {
@@ -30,9 +31,9 @@ var verifyMusicBotMessage = aMsgContent => {
     || aMsgContent.includes("Now Playing:");
 };
 
-function removeStopRole(member, msg) {
-  member.roles.remove(STOP_ROLE);
-  msg.channel.send("<@" + member.user.id + "> can post again");
+function removeStopRole(member, msg, role) {
+  member.roles.remove(role);
+  msg.channel.send("<@" +emember.user.id + "> can post again");
 }
 
 
@@ -53,14 +54,40 @@ bot.on("message", aMsg => {
         const filter = (reaction, user) => {
           return reaction.emoji.name === 'deletenephew';
         };
-        myVote.awaitReactions(filter, {max: 2, time: 10000, errors: ['time']})
+        myVote.awaitReactions(filter, {max: 6, time: 30000, errors: ['time']})
           .then(collected => {
             var myMember = aMsg.mentions.members.first();
             const myCeelo = bot.emojis.cache.find(emoji => emoji.name === 'ceelo');
             console.log(myMember);
-            myMember.roles.add(STOP_ROLE);
+            myMember.roles.add(STOP_POSTING_ROLE);
             aMsg.channel.send("<:ceelo:" + myCeelo + "> <@" + myUser.id + "> Bro stop posting for 10 minutes");
-            setTimeout(removeStopRole, 600000, myMember, aMsg);
+            setTimeout(removeStopRole, 600000, myMember, aMsg, STOP_POSTING_ROLE);
+          })
+          .catch(collected => {
+            const myYikesEmoji = bot.emojis.cache.find(emoji => emoji.name === 'yikes');
+            aMsg.channel.send("Time's up, not enough votes for <@" + myUser.id + "> <:yikes:" + myYikesEmoji + ">");
+          });
+      });
+    }
+  }
+
+    if(aMsg.content.startsWith("stop talking")) {
+    var myUser = aMsg.mentions.users.first();
+    const myDeleteEmoji = bot.emojis.cache.find(emoji => emoji.name === 'deletenephew');
+    if(typeof myUser !== 'undefined') {
+      aMsg.channel.send("Does <@" + myUser.id + "> need to stop talking? Need 6 <:deletenephew:" + myDeleteEmoji.id + "> votes in 30 seconds").then((myVote) => {
+        myVote.react(myDeleteEmoji);
+        const filter = (reaction, user) => {
+          return reaction.emoji.name === 'deletenephew';
+        };
+        myVote.awaitReactions(filter, {max: 6, time: 30000, errors: ['time']})
+          .then(collected => {
+            var myMember = aMsg.mentions.members.first();
+            const myCeelo = bot.emojis.cache.find(emoji => emoji.name === 'ceelo');
+            console.log(myMember);
+            myMember.roles.add(STOP_TALKING_ROLE);
+            aMsg.channel.send("<:ceelo:" + myCeelo + "> <@" + myUser.id + "> Bro stop talking for 10 minutes");
+            setTimeout(removeStopRole, 600000, myMember, aMsg, STOP_TALKING_ROLE);
           })
           .catch(collected => {
             const myYikesEmoji = bot.emojis.cache.find(emoji => emoji.name === 'yikes');
@@ -72,7 +99,9 @@ bot.on("message", aMsg => {
 });
 
 bot.on('ready', () => {
-  STOP_ROLE = bot.guilds.cache.find(myVar => myVar.name === 'SaltSquad').roles.cache.find(role => role.id === '384153116615901185');
+  STOP_POSTING_ROLE = bot.guilds.cache.find(myVar => myVar.name === 'SaltSquad').roles.cache.find(role => role.id === '384153116615901185');
+  STOP_TALKING_ROLE = bot.guilds.cache.find(myVar => myVar.name === 'SaltSquad').roles.cache.find(role => role.id === '792080302657896488');
+  console.log(STOP_TALKING_ROLE);
   console.log('I am ready!');
 });
 
