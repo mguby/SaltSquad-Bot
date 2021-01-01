@@ -12,6 +12,9 @@ var LOG_CHANNEL = null;
 var VOICE_CHANNEL = null;
 var STOP_POSTING_ROLE = null;
 var STOP_TALKING_ROLE = null;
+var POSTURE_CHECK_ROLE = null;
+var START_TIMER = null;
+var POSTURE_CHANNEL = null;
 
 var checkForResponseMessage = (aMsg, aResponseTrigger) => {
   if (aMsg.content.toLowerCase().startsWith(aResponseTrigger)) {
@@ -36,6 +39,10 @@ function removeStopRole(member, msg, role, action) {
   msg.channel.send("<@" + member.user.id + "> can " + action + " again");
 }
 
+function postureCheck() {
+  POSTURE_CHANNEL.send("<@&" + POSTURE_CHECK_ROLE.id + ">");
+  START_TIMER = null;
+}
 
 bot.on("message", aMsg => {
   for (var myProperty in triggers) {
@@ -58,7 +65,7 @@ bot.on("message", aMsg => {
           .then(collected => {
             var myMember = aMsg.mentions.members.first();
             const myCeelo = bot.emojis.cache.find(emoji => emoji.name === 'ceelo');
-            console.log(myMember);
+            //console.log(myMember);
             myMember.roles.add(STOP_POSTING_ROLE);
             aMsg.channel.send("<:ceelo:" + myCeelo + "> <@" + myUser.id + "> Bro stop posting for 10 minutes");
             setTimeout(removeStopRole, 600000, myMember, aMsg, STOP_POSTING_ROLE, "post");
@@ -71,7 +78,7 @@ bot.on("message", aMsg => {
     }
   }
 
-    if(aMsg.content.startsWith("stop talking")) {
+  if(aMsg.content.startsWith("stop talking")) {
     var myUser = aMsg.mentions.users.first();
     const myDeleteEmoji = bot.emojis.cache.find(emoji => emoji.name === 'deletenephew');
     if(typeof myUser !== 'undefined') {
@@ -84,7 +91,7 @@ bot.on("message", aMsg => {
           .then(collected => {
             var myMember = aMsg.mentions.members.first();
             const myCeelo = bot.emojis.cache.find(emoji => emoji.name === 'ceelo');
-            console.log(myMember);
+            //console.log(myMember);
             myMember.roles.add(STOP_TALKING_ROLE);
             aMsg.channel.send("<:ceelo:" + myCeelo + "> <@" + myUser.id + "> Bro stop talking for 10 minutes");
             setTimeout(removeStopRole, 300000, myMember, aMsg, STOP_TALKING_ROLE, "talk");
@@ -96,11 +103,18 @@ bot.on("message", aMsg => {
       });
     }
   }
+  if (START_TIMER == null && aMsg.author.id !== '256187514992197633') {
+    START_TIMER = "started";
+    setTimeout(postureCheck, 3600000);
+    //setTimeout(postureCheck, 5000);
+  }
 });
 
 bot.on('ready', () => {
   STOP_POSTING_ROLE = bot.guilds.cache.find(myVar => myVar.name === 'SaltSquad').roles.cache.find(role => role.id === '384153116615901185');
   STOP_TALKING_ROLE = bot.guilds.cache.find(myVar => myVar.name === 'SaltSquad').roles.cache.find(role => role.id === '792080302657896488');
+  POSTURE_CHECK_ROLE = bot.guilds.cache.find(myVar => myVar.name === 'SaltSquad').roles.cache.find(role => role.id === '791363447107485738');
+  POSTURE_CHANNEL = bot.guilds.cache.find(myVar => myVar.name === 'SaltSquad').channels.cache.find(channel => channel.id === '128760525881344000');
   console.log('I am ready!');
 });
 
