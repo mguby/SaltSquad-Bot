@@ -107,8 +107,8 @@ bot.on("message", aMsg => {
   }
   if (START_TIMER == null && aMsg.author.id !== '256187514992197633') {
     START_TIMER = "started";
-    //setTimeout(postureCheck, 3600000);
-    setTimeout(postureCheck, 5000);
+    setTimeout(postureCheck, 3600000);
+    //setTimeout(postureCheck, 5000);
   }
 });
 
