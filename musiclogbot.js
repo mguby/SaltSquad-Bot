@@ -12,10 +12,6 @@ var LOG_CHANNEL = null;
 var VOICE_CHANNEL = null;
 var STOP_POSTING_ROLE = null;
 var STOP_TALKING_ROLE = null;
-var POSTURE_CHECK_ROLE = null;
-var START_TIMER = null;
-var POSTURE_CHANNEL = null;
-var BACK_PAIN_EMOTE = null;
 
 var checkForResponseMessage = (aMsg, aResponseTrigger) => {
   if (aMsg.content.toLowerCase().startsWith(aResponseTrigger)) {
@@ -38,12 +34,6 @@ var verifyMusicBotMessage = aMsgContent => {
 function removeStopRole(member, msg, role, action) {
   member.roles.remove(role);
   msg.channel.send("<@" + member.user.id + "> can " + action + " again");
-}
-
-function postureCheck() {
-  var myBackPain = "<:backpain:" + BACK_PAIN_EMOTE + ">";
-  POSTURE_CHANNEL.send(myBackPain + " " + myBackPain + " <@&" + POSTURE_CHECK_ROLE.id + "> " + myBackPain + " " + myBackPain);
-  START_TIMER = null;
 }
 
 bot.on("message", aMsg => {
@@ -121,19 +111,11 @@ bot.on("message", aMsg => {
       }
     }
   }
-  if (START_TIMER == null && aMsg.author.id !== '256187514992197633') {
-    START_TIMER = "started";
-    setTimeout(postureCheck, 3600000);
-    //setTimeout(postureCheck, 5000);
-  }
 });
 
 bot.on('ready', () => {
   STOP_POSTING_ROLE = bot.guilds.cache.find(myVar => myVar.name === 'SaltSquad').roles.cache.find(role => role.id === '384153116615901185');
   STOP_TALKING_ROLE = bot.guilds.cache.find(myVar => myVar.name === 'SaltSquad').roles.cache.find(role => role.id === '792080302657896488');
-  POSTURE_CHECK_ROLE = bot.guilds.cache.find(myVar => myVar.name === 'SaltSquad').roles.cache.find(role => role.id === '791363447107485738');
-  POSTURE_CHANNEL = bot.guilds.cache.find(myVar => myVar.name === 'SaltSquad').channels.cache.find(channel => channel.id === '128760525881344000');
-  BACK_PAIN_EMOTE = bot.guilds.cache.find(myVar => myVar.name === 'SaltSquad').emojis.cache.find(emoji => emoji.name === 'backpain');
 
   console.log('I am ready!');
 });
